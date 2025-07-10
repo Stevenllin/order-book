@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { reactive, watch, ref, computed } from 'vue'
 import { useBTSESocket } from './core/composable/useBTSESocket'
-import { OrderSide } from './core/enums/OrderSide'
+import { OrderSide } from './core/enums/order/OrderSide'
 import { 
   processFullOrderBook, 
   updateFullOrderBook,
   type OrderBookData, 
 } from './core/services/orderBookServices'
-import { OrderBookUpdateType } from './core/enums/OrderBookUpdateType'
+import { OrderBookUpdateType } from './core/enums/order/OrderBookUpdateType'
 import OrderBookRow from './components/UI/OrderBookRow.vue'
+import icon from './assets/svg/IconArrowDown.svg'
+import { formatNumber } from './core/services/commonServices'
+import { PriceChangeStatus } from './core/enums/price/PriceChangeStatus'
 
 type TradeData = {
   price: number
@@ -30,13 +33,16 @@ interface OrderParsed {
   timestamp: number
   symbol: string
 }
-
+/** 當前最新價格 */
 const currentTrade = ref<TradeData | null>(null)
-
+/** 上一筆最新價格 */
+const previousTrade = ref<TradeData | null>(null)
+/** 當前所有訂單簿數據 */
 const orderBook = reactive<OrderBookData>({
   asks: [],
   bids: []
 })
+/** 上一筆訂單簿數據 */
 const previousOrder = ref<OrderParsed | null>(null)
 
 /**
@@ -91,16 +97,45 @@ const { connect: connectTradeHistory, disconnect: disconnectTradeHistory } = use
   url: 'wss://ws.btse.com/ws/futures',
   topic: 'tradeHistoryApi:BTCPFC',
   onMessage: (data) => {
-    currentTrade.value = data[0]
+    if (data.length > 2) {
+      previousTrade.value = data[0]
+      currentTrade.value = data[1]
+    } else if (data.length === 1) {
+      previousTrade.value = currentTrade.value
+      currentTrade.value = data[0]
+    }
     console.log('📈 Trade History:', data)
     // tradeHistory.push(...data)
   }
 })
 
+/** 顯示訂單簿 */
 const displayOrderBook = computed(() => {
   return {
     asks: orderBook.asks.slice(0, 8),
     bids: orderBook.bids.slice(0, 8)
+  }
+})
+
+/** 最新成交狀態 */
+const latestTradeStatus = computed(() => {
+  if (!previousTrade.value || !currentTrade.value) {
+    return {
+      status: PriceChangeStatus.Same,
+      price: currentTrade.value?.price || 0,
+      side: currentTrade.value?.side
+    }
+  }
+
+  const { price: currentPrice, side } = currentTrade.value
+  const { price: previousPrice } = previousTrade.value
+
+  return {
+    status: currentPrice > previousPrice ? PriceChangeStatus.Up :
+           currentPrice < previousPrice ? PriceChangeStatus.Down :
+           PriceChangeStatus.Same,
+    price: currentPrice,
+    side
   }
 })
 
@@ -124,10 +159,16 @@ const displayOrderBook = computed(() => {
     </div>
 
     <!-- Current Trade -->
-    <div class="order-book--current-trade">
-      <div class="order-book--current-trade--price">
-        {{ currentTrade?.price }}
-      </div>
+    <div class="order-book--last-price">
+      <span>{{ formatNumber(parseFloat(latestTradeStatus.price.toString() || '0')) }}</span>
+      <img 
+        :src="icon" 
+        alt="arrow-down" 
+        :class="{
+          'icon--up': latestTradeStatus.status === PriceChangeStatus.Up || latestTradeStatus.status === PriceChangeStatus.Same,
+          'icon--down': latestTradeStatus.status === PriceChangeStatus.Down || latestTradeStatus.status === PriceChangeStatus.Same
+        }"
+      />
     </div>
 
     <!-- Bids 買方 -->
@@ -141,5 +182,12 @@ const displayOrderBook = computed(() => {
 </template>
 
 <style scoped>
+.icon--up {
+  filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(119%);
+  transform: rotate(180deg);
+}
 
+.icon--down {
+  filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+}
 </style>

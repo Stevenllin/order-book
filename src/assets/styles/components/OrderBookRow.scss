@@ -9,11 +9,19 @@
     .order-book-row--price {
       color: $quote-buy;
     }
+    
+    img {
+      filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(119%);
+    }
   }
 
   &--sell {
     .order-book-row--price {
       color: $quote-sell;
+    }
+    
+    img {
+      filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
     }
   }
 }

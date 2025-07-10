@@ -4,11 +4,15 @@
 
 body {
   background-color: $bg-primary;
+  letter-spacing: 0.05em;
+  font-size: 1.2rem;
 }
 
 .order-book {
   h1 {
-    font-size: 24px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    padding: 0px 8px;
   }
   color: $text-primary;
 
@@ -16,5 +20,14 @@ body {
     @include flex-layout();
     padding: 8px;
     color: $text-secondary;
+  }
+
+  &--last-price {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 1.5rem;
+    font-weight: 700;
   }
 }

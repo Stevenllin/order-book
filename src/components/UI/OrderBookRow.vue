@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { OrderSide } from '../../core/enums/OrderSide'
+import { OrderSide } from '../../core/enums/order/OrderSide'
+import { formatNumber } from '../../core/services/commonServices'
 
 type Quote = {
   price: number
@@ -19,7 +20,7 @@ const props = defineProps<{
     :class="{ 'order-book-row--buy': side === OrderSide.BUY, 'order-book-row--sell': side === OrderSide.SELL }"
   >
     <div class="order-book-row--price">
-      {{ quote.price }}
+      {{ formatNumber(quote.price) }}
     </div>
     <div class="order-book-row--size">
       {{ quote.size }}
