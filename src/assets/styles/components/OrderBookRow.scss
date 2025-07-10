@@ -1,0 +1,19 @@
+@use '../abstracts/mixins.scss' as *;
+@use '../themes/color.scss' as *;
+
+.order-book-row {
+  @include flex-layout();
+  padding: 8px;
+
+  &--buy {
+    .order-book-row--price {
+      color: $quote-buy;
+    }
+  }
+
+  &--sell {
+    .order-book-row--price {
+      color: $quote-sell;
+    }
+  }
+}

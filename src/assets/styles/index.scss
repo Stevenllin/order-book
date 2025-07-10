@@ -1,0 +1,20 @@
+@use './themes/color.scss' as *;
+@use './abstracts/mixins.scss' as *;
+@use './components/OrderBookRow.scss' as *;
+
+body {
+  background-color: $bg-primary;
+}
+
+.order-book {
+  h1 {
+    font-size: 24px;
+  }
+  color: $text-primary;
+
+  &--header { 
+    @include flex-layout();
+    padding: 8px;
+    color: $text-secondary;
+  }
+}
