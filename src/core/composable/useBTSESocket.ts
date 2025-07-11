@@ -1,5 +1,5 @@
 // composables/useBTSESocket.ts
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref } from 'vue'
 
 interface BTSESocketOptions {
   url: string
@@ -12,6 +12,11 @@ export function useBTSESocket({ url, topic, onMessage }: BTSESocketOptions) {
   let ws: WebSocket | null = null
 
   const connect = () => {
+    // Don't connect if already connected or connecting
+    if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) {
+      return
+    }
+
     ws = new WebSocket(url)
 
     ws.onopen = () => {
@@ -28,22 +33,22 @@ export function useBTSESocket({ url, topic, onMessage }: BTSESocketOptions) {
     }
 
     ws.onerror = (err) => {
+      isConnected.value = false
       console.error('[WebSocket error]', err)
+    }
+
+    ws.onclose = () => {
+      isConnected.value = false
     }
   }
 
   const disconnect = () => {
-    ws?.close()
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.close()
+    }
+    ws = null
     isConnected.value = false
   }
-
-  onMounted(() => {
-    connect()
-  })
-
-  onBeforeUnmount(() => {
-    disconnect()
-  })
 
   return {
     isConnected,

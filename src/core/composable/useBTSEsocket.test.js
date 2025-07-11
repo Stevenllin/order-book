@@ -55,14 +55,23 @@ describe('useBTSESocket', () => {
     vi.restoreAllMocks();
   });
 
-  it('should create WebSocket connection on mount', () => {
+  it('should create WebSocket connection when connect is called', () => {
     const wrapper = mount(TestComponent);
+    
+    // Initially no connection should be created
+    expect(WebSocket).not.toHaveBeenCalled();
+    
+    // Call connect to create the connection
+    wrapper.vm.connect();
     
     expect(WebSocket).toHaveBeenCalledWith('wss://test.com');
   });
 
   it('should send subscribe message when connected', () => {
     const wrapper = mount(TestComponent);
+    
+    // Create connection first
+    wrapper.vm.connect();
     
     // 觸發 onopen 事件
     mockWebSocket.onopen();
@@ -75,6 +84,9 @@ describe('useBTSESocket', () => {
   it('should set isConnected to true when connected', () => {
     const wrapper = mount(TestComponent);
     
+    // Create connection first
+    wrapper.vm.connect();
+    
     // 觸發 onopen 事件
     mockWebSocket.onopen();
     
@@ -84,6 +96,9 @@ describe('useBTSESocket', () => {
   it('should call onMessage when receiving valid message', () => {
     const wrapper = mount(TestComponent);
     const testData = { price: 100, size: 10 };
+    
+    // Create connection first to set up event handlers
+    wrapper.vm.connect();
     
     // 模擬接收消息
     const mockEvent = {
@@ -100,6 +115,9 @@ describe('useBTSESocket', () => {
 
   it('should not call onMessage for unrelated topics', () => {
     const wrapper = mount(TestComponent);
+    
+    // Create connection first to set up event handlers
+    wrapper.vm.connect();
     
     // 模擬接收不相關主題的消息
     const mockEvent = {
@@ -118,6 +136,9 @@ describe('useBTSESocket', () => {
     const wrapper = mount(TestComponent);
     const testData = { price: 100 };
     
+    // Create connection first to set up event handlers
+    wrapper.vm.connect();
+    
     // 模擬接收部分匹配主題的消息
     const mockEvent = {
       data: JSON.stringify({
@@ -135,6 +156,9 @@ describe('useBTSESocket', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const wrapper = mount(TestComponent);
     
+    // Create connection first to set up event handlers
+    wrapper.vm.connect();
+    
     // 觸發錯誤事件
     const mockError = new Error('Connection failed');
     mockWebSocket.onerror(mockError);
@@ -148,6 +172,9 @@ describe('useBTSESocket', () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     const wrapper = mount(TestComponent);
     
+    // Create connection first to set up event handlers
+    wrapper.vm.connect();
+    
     // 觸發連接事件
     mockWebSocket.onopen();
     
@@ -158,6 +185,9 @@ describe('useBTSESocket', () => {
 
   it('should close connection when disconnect is called', () => {
     const wrapper = mount(TestComponent);
+    
+    // Create connection first
+    wrapper.vm.connect();
     
     // 先連接
     mockWebSocket.onopen();
@@ -173,6 +203,9 @@ describe('useBTSESocket', () => {
   it('should handle JSON parse error gracefully', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const wrapper = mount(TestComponent);
+    
+    // Create connection first to set up event handlers
+    wrapper.vm.connect();
     
     // 模擬無效的 JSON 數據
     const mockEvent = {

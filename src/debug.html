@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Debug</title>
+</head>
+<body>
+    <h1>WebSocket Debug</h1>
+    <div id="status">Connecting...</div>
+    <div id="messages"></div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const messagesDiv = document.getElementById('messages');
+
+        // Test Order Book WebSocket
+        const orderBookWs = new WebSocket('wss://ws.btse.com/ws/oss/futures');
+        
+        orderBookWs.onopen = () => {
+            statusDiv.textContent = 'Order Book WebSocket Connected';
+            console.log('Order Book WebSocket opened');
+            
+            setTimeout(() => {
+                if (orderBookWs.readyState === WebSocket.OPEN) {
+                    const subscribeMessage = JSON.stringify({ op: 'subscribe', args: ['update:BTCPFC'] });
+                    console.log('Sending subscription:', subscribeMessage);
+                    orderBookWs.send(subscribeMessage);
+                }
+            }, 100);
+        };
+
+        orderBookWs.onmessage = (event) => {
+            console.log('Order Book received:', event.data);
+            const message = document.createElement('div');
+            message.textContent = `Order Book: ${event.data}`;
+            messagesDiv.appendChild(message);
+        };
+
+        orderBookWs.onerror = (error) => {
+            console.error('Order Book WebSocket error:', error);
+            statusDiv.textContent = 'Order Book WebSocket Error';
+        };
+
+        // Test Trade History WebSocket
+        const tradeHistoryWs = new WebSocket('wss://ws.btse.com/ws/futures');
+        
+        tradeHistoryWs.onopen = () => {
+            statusDiv.textContent += ' | Trade History WebSocket Connected';
+            console.log('Trade History WebSocket opened');
+            
+            setTimeout(() => {
+                if (tradeHistoryWs.readyState === WebSocket.OPEN) {
+                    const subscribeMessage = JSON.stringify({ op: 'subscribe', args: ['tradeHistoryApi:BTCPFC'] });
+                    console.log('Sending trade subscription:', subscribeMessage);
+                    tradeHistoryWs.send(subscribeMessage);
+                }
+            }, 100);
+        };
+
+        tradeHistoryWs.onmessage = (event) => {
+            console.log('Trade History received:', event.data);
+            const message = document.createElement('div');
+            message.textContent = `Trade History: ${event.data}`;
+            messagesDiv.appendChild(message);
+        };
+
+        tradeHistoryWs.onerror = (error) => {
+            console.error('Trade History WebSocket error:', error);
+            statusDiv.textContent += ' | Trade History WebSocket Error';
+        };
+    </script>
+</body>
+</html> 
