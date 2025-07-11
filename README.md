@@ -5,9 +5,11 @@ A real-time cryptocurrency order book application built with Vue 3, TypeScript, 
 ## 🚀 Features
 
 - **Real-time Order Book Display**: Live updates of buy/sell orders with price, size, and cumulative totals
+- **Trade History**: Real-time trade execution updates with price change indicators
 - **WebSocket Integration**: Real-time data streaming from cryptocurrency exchange
-- **Trade History**: Latest trade information with price change indicators
-- **Responsive UI**: Clean, modern interface with loading states
+- **Modular Architecture**: Separated concerns with dedicated composables for order book and trade history
+- **Environment Configuration**: Configurable WebSocket URLs and topics via environment variables
+- **Responsive UI**: Clean, modern interface with loading states and visual feedback
 - **TypeScript Support**: Full type safety throughout the application
 - **Comprehensive Testing**: Unit tests with Vitest and Vue Test Utils
 
@@ -16,9 +18,10 @@ A real-time cryptocurrency order book application built with Vue 3, TypeScript, 
 - **Frontend**: Vue 3 with Composition API
 - **Language**: TypeScript
 - **Build Tool**: Vite
-- **Styling**: SCSS
+- **Styling**: SCSS with modular architecture
 - **Testing**: Vitest + Vue Test Utils
 - **Real-time**: WebSocket
+- **State Management**: Vue 3 reactive system
 
 ## 📦 Installation
 
@@ -33,12 +36,16 @@ cd order-book
 npm install
 ```
 
-3. Start the development server:
+3. Configure environment variables (optional):
+   - Edit `src/config/env.ts` to customize WebSocket URLs and topics
+   - Adjust display settings like maximum order book entries
+
+4. Start the development server:
 ```bash
 npm run dev
 ```
 
-4. Open your browser and navigate to `http://localhost:5173`
+5. Open your browser and navigate to `http://localhost:5173`
 
 ## 🏗️ Project Structure
 
@@ -46,20 +53,33 @@ npm run dev
 src/
 ├── assets/
 │   ├── styles/          # SCSS styles and themes
+│   │   ├── abstracts/   # Mixins and variables
+│   │   ├── components/  # Component-specific styles
+│   │   └── themes/      # Color and font definitions
 │   └── svg/            # SVG icons
 ├── components/
 │   └── UI/             # Reusable UI components
 │       ├── Loading.vue
 │       └── OrderBookRow.vue
+├── config/
+│   └── env.ts          # Environment configuration
 ├── core/
 │   ├── composable/     # Vue composables
-│   │   └── useBTSESocket.ts
+│   │   ├── useBTSESocket.ts    # WebSocket connection management
+│   │   ├── useOrderBook.ts     # Order book data management
+│   │   └── useTradeHistory.ts  # Trade history management
 │   ├── enums/          # TypeScript enums
 │   │   ├── order/      # Order-related enums
+│   │   │   ├── OrderBookUpdateType.ts
+│   │   │   └── OrderSide.ts
 │   │   └── system/     # System enums
+│   │       ├── SizeNameEnum.ts
+│   │       └── StatusChangeEnum.ts
 │   └── services/       # Business logic services
 │       ├── commonServices.ts
 │       └── orderBookServices.ts
+├── types/
+│   └── index.ts        # TypeScript type definitions
 ├── OrderBook.vue       # Main order book component
 └── main.ts            # Application entry point
 ```
@@ -72,25 +92,25 @@ src/
 - `npm test` - Run tests in watch mode
 - `npm run coverage` - Generate test coverage report
 
-## 📊 Order Book Features
+## 📊 Core Features
 
-### Real-time Data
-- **WebSocket Connection**: Connects to cryptocurrency exchange for live data
+### Real-time Data Management
+- **WebSocket Connection**: Robust connection management with automatic reconnection
 - **Order Book Updates**: Handles both snapshot and incremental updates
 - **Sequence Number Validation**: Automatically reconnects on data gaps
-- **Trade History**: Real-time trade execution updates
+- **Trade History**: Real-time trade execution updates with proper state management
+
+### Modular Composable Architecture
+- **useBTSESocket**: Centralized WebSocket connection management
+- **useOrderBook**: Dedicated order book data processing and state management
+- **useTradeHistory**: Separate trade history data handling
+- **Clean Separation**: Each composable handles its specific domain
 
 ### UI Components
 - **Loading States**: Skeleton loading and spinner components
 - **Order Rows**: Individual order entries with price, size, and totals
-- **Price Indicators**: Visual indicators for price changes
+- **Price Indicators**: Visual indicators for price changes and new entries
 - **Responsive Design**: Works on desktop and mobile devices
-
-### Data Processing
-- **Order Processing**: Converts raw data to structured order book entries
-- **Cumulative Totals**: Calculates running totals for order sizes
-- **Price Sorting**: Maintains proper order book structure (bids descending, asks ascending)
-- **Data Validation**: Ensures data integrity and handles edge cases
 
 ## 🧪 Testing
 
@@ -98,7 +118,8 @@ The project includes comprehensive test coverage:
 
 - **Unit Tests**: Core services and utilities
 - **Component Tests**: Vue components with mocked dependencies
-- **Integration Tests**: WebSocket composable functionality
+- **Composable Tests**: Individual composable functionality testing
+- **Integration Tests**: WebSocket and data flow testing
 - **Coverage Reports**: Detailed test coverage analysis
 
 Run tests:
@@ -113,8 +134,26 @@ npm run coverage
 
 ## 🔌 API Integration
 
-### WebSocket Endpoints
-The application connects to cryptocurrency exchange WebSocket endpoints for real-time data streaming.
+### WebSocket Configuration
+The application connects to cryptocurrency exchange WebSocket endpoints for real-time data streaming. Configuration is centralized in `src/config/env.ts`:
+
+```typescript
+export const config = {
+  websocket: {
+    orderBook: {
+      url: 'wss://your-exchange.com/ws/spot',
+      topic: 'orderBookApi'
+    },
+    tradeHistory: {
+      url: 'wss://your-exchange.com/ws/spot',
+      topic: 'tradeHistoryApi'
+    }
+  },
+  display: {
+    maxOrderBookEntries: 20
+  }
+}
+```
 
 ### Data Formats
 - **Order Book Data**: `{ asks: [price, size][], bids: [price, size][], type, seqNum, prevSeqNum }`
@@ -123,6 +162,20 @@ The application connects to cryptocurrency exchange WebSocket endpoints for real
 ## 🎨 Styling
 
 The application uses SCSS with a modular structure:
-- **Abstracts**: Mixins and variables
-- **Components**: Component-specific styles
-- **Themes**: Color and font definitions
+- **Abstracts**: Mixins and variables for consistent styling
+- **Components**: Component-specific styles with BEM methodology
+- **Themes**: Color and font definitions for easy theming
+
+## 🔄 State Management
+
+The application uses Vue 3's reactive system for state management:
+- **Reactive State**: Order book and trade data are reactive
+- **Computed Properties**: Derived state for display calculations
+- **Lifecycle Management**: Proper cleanup of WebSocket connections
+
+## 🚀 Performance Features
+
+- **Efficient Updates**: Only updates changed data
+- **Memory Management**: Proper cleanup of WebSocket connections
+- **Optimized Rendering**: Computed properties for expensive calculations
+
