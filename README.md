@@ -15,6 +15,7 @@ A real-time cryptocurrency order book application built with Vue 3, TypeScript, 
 
 ## 🛠️ Tech Stack
 
+- **Runtime**: Node.js 20+
 - **Frontend**: Vue 3 with Composition API
 - **Language**: TypeScript
 - **Build Tool**: Vite
@@ -24,6 +25,9 @@ A real-time cryptocurrency order book application built with Vue 3, TypeScript, 
 - **State Management**: Vue 3 reactive system
 
 ## 📦 Installation
+
+**Prerequisites:**
+- Node.js 20
 
 1. Clone the repository:
 ```bash
