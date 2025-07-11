@@ -30,8 +30,8 @@ describe('OrderBookRow', () => {
       props: defaultProps
     });
 
-    expect(wrapper.classes()).toContain('order-book-row--buy');
-    expect(wrapper.classes()).not.toContain('order-book-row--sell');
+    expect(wrapper.find('.order-book-row').classes()).toContain('order-book-row--buy');
+    expect(wrapper.find('.order-book-row').classes()).not.toContain('order-book-row--sell');
   });
 
   it('should apply sell class when side is SELL', () => {
@@ -42,8 +42,8 @@ describe('OrderBookRow', () => {
       }
     });
 
-    expect(wrapper.classes()).toContain('order-book-row--sell');
-    expect(wrapper.classes()).not.toContain('order-book-row--buy');
+    expect(wrapper.find('.order-book-row').classes()).toContain('order-book-row--sell');
+    expect(wrapper.find('.order-book-row').classes()).not.toContain('order-book-row--buy');
   });
 
   it('should show up status when size increases', () => {
@@ -87,7 +87,7 @@ describe('OrderBookRow', () => {
       props: defaultProps
     });
 
-    const style = wrapper.attributes('style');
+    const style = wrapper.find('.order-book-row').attributes('style');
     expect(style).toBeTruthy();
     expect(style).toContain('background');
   });
@@ -101,7 +101,7 @@ describe('OrderBookRow', () => {
       }
     });
 
-    const style = wrapper.attributes('style');
+    const style = wrapper.find('.order-book-row').attributes('style');
     expect(style).toBeFalsy() || expect(style).not.toContain('background');
   });
 

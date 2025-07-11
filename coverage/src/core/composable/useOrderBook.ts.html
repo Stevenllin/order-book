@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>63/63</span>
+                <span class='fraction'>69/69</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>63/63</span>
+                <span class='fraction'>69/69</span>
             </div>
         
             
@@ -156,7 +156,22 @@
 <a name='L91'></a><a href='#L91'>91</a>
 <a name='L92'></a><a href='#L92'>92</a>
 <a name='L93'></a><a href='#L93'>93</a>
-<a name='L94'></a><a href='#L94'>94</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -186,11 +201,25 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
@@ -219,6 +248,7 @@
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
@@ -263,33 +293,47 @@ import type { OrderParsed } from '../../types'
 &nbsp;
 export function useOrderBook() {
   // State
-  const isLoading = ref(true)
+  const isLoading = ref(true) // 訂單簿載入狀態
   const orderBook = reactive&lt;OrderBookData&gt;({
-    asks: [],
-    bids: []
+    asks: [], // 賣單列表
+    bids: []  // 買單列表
   })
-  const previousOrder = ref&lt;OrderParsed | null&gt;(null)
+  const previousOrder = ref&lt;OrderParsed | null&gt;(null) // 上一筆訂單資料，用於檢查序號連續性
   const previousDisplayedOrderBook = reactive&lt;{
     asks: OrderBookEntry[]
     bids: OrderBookEntry[]
   }&gt;({
-    asks: [],
-    bids: []
+    asks: [], // 上一次顯示的賣單列表，用於比較變化
+    bids: []  // 上一次顯示的買單列表，用於比較變化
   })
 &nbsp;
   // Computed
-  const displayOrderBook = computed(() =&gt; ({
-    asks: orderBook.asks.slice(0, config.display.maxOrderBookEntries),
-    bids: orderBook.bids.slice(0, config.display.maxOrderBookEntries),
-    asksTotal: orderBook.asks.reduce((acc, curr) =&gt; acc + curr.total, 0),
-    bidsTotal: orderBook.bids.reduce((acc, curr) =&gt; acc + curr.total, 0)
-  }))
+  const displayOrderBook = computed(() =&gt; {
+    // 避免重複計算，先取得要顯示的訂單數據
+    const displayAsks = orderBook.asks.slice(0, config.display.maxOrderBookEntries)
+    const displayBids = orderBook.bids.slice(0, config.display.maxOrderBookEntries)
+&nbsp;
+    // 計算總量
+    const asksTotal = displayAsks.reduce((acc, curr) =&gt; acc + curr.total, 0)
+    const bidsTotal = displayBids.reduce((acc, curr) =&gt; acc + curr.total, 0)
+&nbsp;
+    return {
+      asks: displayAsks,   // 要顯示的賣單列表
+      bids: displayBids,   // 要顯示的買單列表
+      asksTotal,          // 賣單總量
+      bidsTotal          // 買單總量
+    }
+  })
 &nbsp;
   // Methods
+  /**
+   * 處理訂單簿 WebSocket 訊息
+   * @param data 訂單簿更新資料
+   */
   const handleOrderBookMessage = (data: OrderParsed) =&gt; {
     const { asks, bids, type } = data
     
-    // Check sequence number mismatch
+    // 檢查序號是否連續，如果不連續則重新連接
     if (previousOrder.value) {
       const { seqNum } = previousOrder.value
       const { prevSeqNum } = data
@@ -305,24 +349,25 @@ export function useOrderBook() {
     previousOrder.value = data
     
     if (type === OrderBookUpdateType.SNAPSHOT) {
-      // Initial data processing
+      // 處理完整訂單簿快照
       const processedData = processFullOrderBook({ asks, bids })
-      orderBook.bids = processedData.bids.sort((a, b) =&gt; b.price - a.price)
-      orderBook.asks = processedData.asks.sort((a, b) =&gt; a.price - b.price)
+      orderBook.bids = processedData.bids.sort((a, b) =&gt; b.price - a.price) // 買單價格由高到低排序
+      orderBook.asks = processedData.asks.sort((a, b) =&gt; b.price - a.price) // 賣單價格由高到低排序
       isLoading.value = false
 &nbsp;
     } else {
-      // Incremental update
+      // 處理增量更新
+      // 保存上一次顯示的訂單簿狀態，用於比較變化
       previousDisplayedOrderBook.asks = [...orderBook.asks.slice(0, config.display.maxOrderBookEntries)]
       previousDisplayedOrderBook.bids = [...orderBook.bids.slice(0, config.display.maxOrderBookEntries)]
       
       const updatedData = updateFullOrderBook(orderBook, { asks, bids })
-      orderBook.bids = updatedData.bids.sort((a, b) =&gt; b.price - a.price)
-      orderBook.asks = updatedData.asks.sort((a, b) =&gt; a.price - b.price)
+      orderBook.bids = updatedData.bids.sort((a, b) =&gt; b.price - a.price) // 買單價格由高到低排序
+      orderBook.asks = updatedData.asks.sort((a, b) =&gt; b.price - a.price) // 賣單價格由高到低排序
     }
   }
 &nbsp;
-  // WebSocket connection
+  // WebSocket 連接設定
   const { connect: connectOrderBook, disconnect: disconnectOrderBook } = useBTSESocket({
     url: config.websocket.orderBook.url,
     topic: config.websocket.orderBook.topic,
@@ -331,16 +376,16 @@ export function useOrderBook() {
 &nbsp;
   return {
     // State
-    isLoading,
-    orderBook,
-    previousDisplayedOrderBook,
+    isLoading,                  // 訂單簿載入狀態
+    orderBook,                  // 完整訂單簿資料
+    previousDisplayedOrderBook, // 上一次顯示的訂單簿狀態
     
     // Computed
-    displayOrderBook,
+    displayOrderBook,           // 要顯示的訂單簿資料
     
     // Methods
-    connectOrderBook,
-    disconnectOrderBook
+    connectOrderBook,           // 連接訂單簿 WebSocket
+    disconnectOrderBook        // 斷開訂單簿 WebSocket 連接
   }
 } </pre></td></tr></table></pre>
 
@@ -349,7 +394,7 @@ export function useOrderBook() {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-07-11T12:06:33.086Z
+                at 2025-07-11T16:59:11.761Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

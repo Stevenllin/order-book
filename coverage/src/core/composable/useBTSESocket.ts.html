@@ -120,7 +120,19 @@
 <a name='L55'></a><a href='#L55'>55</a>
 <a name='L56'></a><a href='#L56'>56</a>
 <a name='L57'></a><a href='#L57'>57</a>
-<a name='L58'></a><a href='#L58'>58</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -129,9 +141,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -139,30 +155,38 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -186,41 +210,53 @@ interface BTSESocketOptions {
   onMessage: (data: any) =&gt; void
 }
 &nbsp;
+/** BTSE WebSocket連接管理函數 */
 export function useBTSESocket({ url, topic, onMessage }: BTSESocketOptions) {
+  /** WebSocket連接狀態 */
   const isConnected = ref(false)
+  /** WebSocket實例 */
   let ws: WebSocket | null = null
 &nbsp;
+  /** 建立WebSocket連接 */
   const connect = () =&gt; {
-    // Don't connect if already connected or connecting
+    // 如果已經連接或正在連接中則不重複連接
     if (<span class="branch-0 cbranch-no" title="branch not covered" >ws &amp;&amp; (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) <span class="branch-0 cbranch-no" title="branch not covered" >{</span></span>
 <span class="cstat-no" title="statement not covered" >      return</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
+    // 創建新的WebSocket實例
     ws = new WebSocket(url)
 &nbsp;
+    /** WebSocket連接成功時的處理函數 */
     ws.onopen = () =&gt; {
       isConnected.value = true
+      // 發送訂閱請求
       ws?.send(JSON.stringify({ op: 'subscribe', args: [topic] }))
       console.log('[WebSocket connected]', topic)
     }
 &nbsp;
+    /** WebSocket接收消息時的處理函數 */
     ws.onmessage = (event) =&gt; {
       const msg = JSON.parse(event.data)
+      // 檢查消息主題是否匹配訂閱主題
       if (msg.topic?.startsWith(topic.split(':')[0])) {
         onMessage(msg.data)
       }
     }
 &nbsp;
+    /** WebSocket發生錯誤時的處理函數 */
     ws.onerror = (err) =&gt; {
       isConnected.value = false
       console.error('[WebSocket error]', err)
     }
 &nbsp;
+    /** WebSocket連接關閉時的處理函數 */
     ws.onclose = <span class="fstat-no" title="function not covered" >() =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >      isConnected.value = false</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
   }
 &nbsp;
+  /** 關閉WebSocket連接 */
   const disconnect = () =&gt; {
     if (ws &amp;&amp; ws.readyState === WebSocket.OPEN) {
       ws.close()
@@ -241,7 +277,7 @@ export function useBTSESocket({ url, topic, onMessage }: BTSESocketOptions) {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-07-11T12:06:33.086Z
+                at 2025-07-11T16:59:11.761Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

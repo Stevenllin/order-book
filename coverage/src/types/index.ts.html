@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/45</span>
+                <span class='fraction'>0/51</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/45</span>
+                <span class='fraction'>0/51</span>
             </div>
         
             
@@ -107,7 +107,19 @@
 <a name='L42'></a><a href='#L42'>42</a>
 <a name='L43'></a><a href='#L43'>43</a>
 <a name='L44'></a><a href='#L44'>44</a>
-<a name='L45'></a><a href='#L45'>45</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -156,42 +168,48 @@
 <span class="cstat-no" title="statement not covered" >import { OrderBookUpdateType } from '../core/enums/order/OrderBookUpdateType'</span>
 <span class="cstat-no" title="statement not covered" >import { StatusChangeEnum } from '../core/enums/system/StatusChangeEnum'</span>
 <span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >/** 報價元組類型，表示價格和數量的字符串對 [價格, 數量] */</span>
 <span class="cstat-no" title="statement not covered" >export type QuoteTuple = [string, string]</span>
 <span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >/** 解析後的訂單數據接口 */</span>
 <span class="cstat-no" title="statement not covered" >export interface OrderParsed {</span>
-<span class="cstat-no" title="statement not covered" >  asks: QuoteTuple[]</span>
-<span class="cstat-no" title="statement not covered" >  bids: QuoteTuple[]</span>
-<span class="cstat-no" title="statement not covered" >  seqNum: number</span>
-<span class="cstat-no" title="statement not covered" >  prevSeqNum: number</span>
-<span class="cstat-no" title="statement not covered" >  type: OrderBookUpdateType</span>
-<span class="cstat-no" title="statement not covered" >  timestamp: number</span>
-<span class="cstat-no" title="statement not covered" >  symbol: string</span>
+<span class="cstat-no" title="statement not covered" >  asks: QuoteTuple[]           // 賣單列表</span>
+<span class="cstat-no" title="statement not covered" >  bids: QuoteTuple[]           // 買單列表</span>
+<span class="cstat-no" title="statement not covered" >  seqNum: number               // 當前序號</span>
+<span class="cstat-no" title="statement not covered" >  prevSeqNum: number          // 前一個序號</span>
+<span class="cstat-no" title="statement not covered" >  type: OrderBookUpdateType    // 更新類型(快照/增量)</span>
+<span class="cstat-no" title="statement not covered" >  timestamp: number           // 時間戳</span>
+<span class="cstat-no" title="statement not covered" >  symbol: string              // 交易對符號</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >/** 訂單簿條目接口 */</span>
 <span class="cstat-no" title="statement not covered" >export interface OrderBookEntry {</span>
-<span class="cstat-no" title="statement not covered" >  price: number</span>
-<span class="cstat-no" title="statement not covered" >  size: number</span>
-<span class="cstat-no" title="statement not covered" >  total: number</span>
+<span class="cstat-no" title="statement not covered" >  price: number               // 價格</span>
+<span class="cstat-no" title="statement not covered" >  size: number               // 數量</span>
+<span class="cstat-no" title="statement not covered" >  total: number              // 累計數量</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >/** 訂單簿數據接口 */</span>
 <span class="cstat-no" title="statement not covered" >export interface OrderBookData {</span>
-<span class="cstat-no" title="statement not covered" >  asks: OrderBookEntry[]</span>
-<span class="cstat-no" title="statement not covered" >  bids: OrderBookEntry[]</span>
+<span class="cstat-no" title="statement not covered" >  asks: OrderBookEntry[]      // 賣單列表</span>
+<span class="cstat-no" title="statement not covered" >  bids: OrderBookEntry[]      // 買單列表</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >/** 交易數據接口 */</span>
 <span class="cstat-no" title="statement not covered" >export interface TradeData {</span>
-<span class="cstat-no" title="statement not covered" >  price: number</span>
-<span class="cstat-no" title="statement not covered" >  side: OrderSide</span>
-<span class="cstat-no" title="statement not covered" >  size: number</span>
-<span class="cstat-no" title="statement not covered" >  symbol: string</span>
-<span class="cstat-no" title="statement not covered" >  timestamp: number</span>
-<span class="cstat-no" title="statement not covered" >  tradeId: number</span>
+<span class="cstat-no" title="statement not covered" >  price: number              // 成交價格</span>
+<span class="cstat-no" title="statement not covered" >  side: OrderSide           // 交易方向(買/賣)</span>
+<span class="cstat-no" title="statement not covered" >  size: number              // 成交數量</span>
+<span class="cstat-no" title="statement not covered" >  symbol: string            // 交易對符號</span>
+<span class="cstat-no" title="statement not covered" >  timestamp: number         // 成交時間戳</span>
+<span class="cstat-no" title="statement not covered" >  tradeId: number          // 交易ID</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >/** 交易狀態接口 */</span>
 <span class="cstat-no" title="statement not covered" >export interface TradeStatus {</span>
-<span class="cstat-no" title="statement not covered" >  status: StatusChangeEnum</span>
-<span class="cstat-no" title="statement not covered" >  price: number</span>
-<span class="cstat-no" title="statement not covered" >  side: OrderSide | undefined</span>
+<span class="cstat-no" title="statement not covered" >  status: StatusChangeEnum   // 價格變化狀態(上漲/下跌/不變)</span>
+<span class="cstat-no" title="statement not covered" >  price: number             // 當前價格</span>
+<span class="cstat-no" title="statement not covered" >  side: OrderSide | undefined // 交易方向(買/賣)</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >// Re-export enums for convenience</span>
@@ -202,7 +220,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-07-11T12:06:33.086Z
+                at 2025-07-11T16:59:11.761Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

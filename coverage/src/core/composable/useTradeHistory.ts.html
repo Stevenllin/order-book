@@ -173,7 +173,11 @@
 <a name='L108'></a><a href='#L108'>108</a>
 <a name='L109'></a><a href='#L109'>109</a>
 <a name='L110'></a><a href='#L110'>110</a>
-<a name='L111'></a><a href='#L111'>111</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -219,6 +223,10 @@
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">20x</span>
@@ -292,13 +300,13 @@ import type { TradeData, TradeStatus } from '../../types'
 &nbsp;
 export function useTradeHistory() {
   // State
-  const isLoading = ref(true)
-  const currentTrade = ref&lt;TradeData | null&gt;(null)
-  const previousTrade = ref&lt;TradeData | null&gt;(null)
+  const isLoading = ref(true)                          // 交易歷史載入狀態
+  const currentTrade = ref&lt;TradeData | null&gt;(null)     // 當前交易資料
+  const previousTrade = ref&lt;TradeData | null&gt;(null)    // 上一筆交易資料
 &nbsp;
   // Computed
   const latestTradeStatus = computed&lt;TradeStatus&gt;(() =&gt; {
-    // If we have no current trade, return default values
+    // 如果沒有當前交易，返回預設值
     if (!currentTrade.value) {
       return {
         status: StatusChangeEnum.Same,
@@ -309,7 +317,7 @@ export function useTradeHistory() {
 &nbsp;
     const { price: currentPrice, side } = currentTrade.value
 &nbsp;
-    // If we have no previous trade, this is the first trade
+    // 如果沒有上一筆交易，這是第一筆交易
     if (!previousTrade.value) {
       return {
         status: StatusChangeEnum.Same,
@@ -318,22 +326,26 @@ export function useTradeHistory() {
       }
     }
 &nbsp;
-    // Compare with previous trade
+    // 與上一筆交易比較價格變化
     const { price: previousPrice } = previousTrade.value
 &nbsp;
     return {
-      status: currentPrice &gt; previousPrice ? StatusChangeEnum.Up :
-             currentPrice &lt; previousPrice ? StatusChangeEnum.Down :
-             StatusChangeEnum.Same,
+      status: currentPrice &gt; previousPrice ? StatusChangeEnum.Up :    // 價格上漲
+             currentPrice &lt; previousPrice ? StatusChangeEnum.Down :   // 價格下跌
+             StatusChangeEnum.Same,                                   // 價格不變
       price: currentPrice,
       side
     }
   })
 &nbsp;
   // Methods
+  /**
+   * 處理交易歷史 WebSocket 訊息
+   * @param message WebSocket 接收到的訊息
+   */
   const handleTradeHistoryMessage = (message: any) =&gt; {
     
-    // Handle different message formats
+    // 處理不同的訊息格式
     let data: any[] = []
     if (message.data &amp;&amp; Array.isArray(message.data)) {
       data = message.data
@@ -343,29 +355,29 @@ export function useTradeHistory() {
       return
     }
     
-    // Transform the data to match TradeData format
+    // 將資料轉換為 TradeData 格式
     const transformedData: TradeData[] = data.map(trade =&gt; ({
-      price: parseFloat(trade.price),
-      side: trade.side === 'BUY' ? OrderSide.BUY : OrderSide.SELL,
-      size: parseFloat(trade.size),
-      symbol: trade.<span class="branch-0 cbranch-no" title="branch not covered" >symbol || 'BTCPFC',</span>
-      timestamp: typeof trade.timestamp === 'string' ? parseInt(trade.timestamp) : trade.timestamp,
-      tradeId: trade.tradeId || Date.now()
+      price: parseFloat(trade.price),                                              // 交易價格
+      side: trade.side === 'BUY' ? OrderSide.BUY : OrderSide.SELL,                // 交易方向
+      size: parseFloat(trade.size),                                               // 交易數量
+      symbol: trade.<span class="branch-0 cbranch-no" title="branch not covered" >symbol || 'BTCPFC',                                           // 交易對符號</span>
+      timestamp: typeof trade.timestamp === 'string' ? parseInt(trade.timestamp) : trade.timestamp,  // 交易時間戳
+      tradeId: trade.tradeId || Date.now()                                        // 交易 ID
     }))
 &nbsp;
     if (transformedData.length === 0) {
       return
     }
 &nbsp;
-    // For the first trade, set it as current trade
+    // 處理第一筆交易
     if (!currentTrade.value) {
       currentTrade.value = transformedData[0]
     } else if (transformedData.length === 1) {
-      // For subsequent single trades, move current to previous and set new current
+      // 處理單筆交易更新：將當前交易移至上一筆，新交易設為當前交易
       previousTrade.value = currentTrade.value
       currentTrade.value = transformedData[0]
     } else if (transformedData.length &gt; 1) {
-      // For multiple trades, use the first two
+      // 處理多筆交易更新：使用前兩筆交易資料
       previousTrade.value = transformedData[0]
       currentTrade.value = transformedData[1]
     }
@@ -373,25 +385,25 @@ export function useTradeHistory() {
     isLoading.value = false
   }
 &nbsp;
-  // WebSocket connection
+  // WebSocket 連接設定
   const { connect: connectTradeHistory, disconnect: disconnectTradeHistory } = useBTSESocket({
-    url: config.websocket.tradeHistory.url,
-    topic: config.websocket.tradeHistory.topic,
-    onMessage: handleTradeHistoryMessage
+    url: config.websocket.tradeHistory.url,        // WebSocket 連接 URL
+    topic: config.websocket.tradeHistory.topic,    // WebSocket 訂閱主題
+    onMessage: handleTradeHistoryMessage           // WebSocket 訊息處理函數
   })
 &nbsp;
   return {
     // State
-    isLoading,
-    currentTrade,
-    previousTrade,
+    isLoading,                  // 交易歷史載入狀態
+    currentTrade,               // 當前交易資料
+    previousTrade,              // 上一筆交易資料
     
     // Computed
-    latestTradeStatus,
+    latestTradeStatus,          // 最新交易狀態
     
     // Methods
-    connectTradeHistory,
-    disconnectTradeHistory
+    connectTradeHistory,        // 連接交易歷史 WebSocket
+    disconnectTradeHistory      // 斷開交易歷史 WebSocket 連接
   }
 } </pre></td></tr></table></pre>
 
@@ -400,7 +412,7 @@ export function useTradeHistory() {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-07-11T12:06:33.086Z
+                at 2025-07-11T16:59:11.761Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>87/87</span>
+                <span class='fraction'>88/88</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>87/87</span>
+                <span class='fraction'>88/88</span>
             </div>
         
             
@@ -178,7 +178,19 @@
 <a name='L113'></a><a href='#L113'>113</a>
 <a name='L114'></a><a href='#L114'>114</a>
 <a name='L115'></a><a href='#L115'>115</a>
-<a name='L116'></a><a href='#L116'>116</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -192,17 +204,27 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -215,6 +237,7 @@
 <span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -262,6 +285,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -305,31 +329,42 @@ import { SizeNameEnum } from './core/enums/system/SizeNameEnum'
 import { useOrderBook } from './core/composable/useOrderBook'
 import { useTradeHistory } from './core/composable/useTradeHistory'
 &nbsp;
-// Use the composables
+/** 使用訂單簿相關功能的composable */
 const {
+  /** 訂單簿數據加載狀態 */
   isLoading: orderBookLoading,
+  /** 當前展示的訂單簿數據 */
   displayOrderBook,
+  /** 前一次展示的訂單簿數據,用於計算變化狀態 */
   previousDisplayedOrderBook,
+  /** 連接訂單簿WebSocket的方法 */
   connectOrderBook,
+  /** 斷開訂單簿WebSocket連接的方法 */
   disconnectOrderBook
 } = useOrderBook()
 &nbsp;
+/** 使用交易歷史相關功能的composable */
 const {
+  /** 交易歷史數據加載狀態 */
   isLoading: tradeLoading,
+  /** 最新成交狀態 */
   latestTradeStatus,
+  /** 連接交易歷史WebSocket的方法 */
   connectTradeHistory,
+  /** 斷開交易歷史WebSocket連接的方法 */
   disconnectTradeHistory
 } = useTradeHistory()
 &nbsp;
-// Combined loading state
+/** 組合加載狀態 - 當訂單簿或交易歷史任一在加載時為true */
 const isLoading = computed(() =&gt; orderBookLoading.value || tradeLoading.value)
 &nbsp;
-// Connect to WebSockets when component is mounted
+/** 組件掛載時連接WebSocket */
 onMounted(() =&gt; {
   connectOrderBook()
   connectTradeHistory()
 })
 &nbsp;
+/** 組件卸載前斷開WebSocket連接 */
 onBeforeUnmount(() =&gt; {
   disconnectOrderBook()
   disconnectTradeHistory()
@@ -338,7 +373,7 @@ onBeforeUnmount(() =&gt; {
 &nbsp;
 &lt;template&gt;
   &lt;div class="order-book"&gt;
-    &lt;!-- Loading State --&gt;
+    &lt;!-- 載入狀態顯示 --&gt;
     &lt;div v-if="isLoading" class=""&gt;
       &lt;Loading 
         :text="orderBookLoading ? 'Loading Order Book...' : 'Loading Trade History...'"
@@ -346,17 +381,17 @@ onBeforeUnmount(() =&gt; {
       /&gt;
     &lt;/div&gt;
     
-    &lt;!-- Actual Content --&gt;
+    &lt;!-- 主要內容區域 --&gt;
     &lt;template v-else&gt;
-      &lt;!-- Title --&gt;
+      &lt;!-- 標題 --&gt;
       &lt;h1&gt;Order Book&lt;/h1&gt;
-      &lt;!-- Header --&gt;
+      &lt;!-- 表頭 --&gt;
       &lt;div class="order-book--header"&gt;
         &lt;div&gt;Price (USD)&lt;/div&gt;
         &lt;div&gt;Size&lt;/div&gt;
         &lt;div&gt;Total&lt;/div&gt;
       &lt;/div&gt;
-      &lt;!-- Asks 賣方 --&gt;
+      &lt;!-- 賣單區域 --&gt;
       &lt;div class="order-book--asks"&gt;
         &lt;template v-for="ask in displayOrderBook.asks" :key="ask.price"&gt;
           &lt;OrderBookRow
@@ -369,7 +404,7 @@ onBeforeUnmount(() =&gt; {
         &lt;/template&gt;
       &lt;/div&gt;
 &nbsp;
-      &lt;!-- Current Trade --&gt;
+      &lt;!-- 最新成交價格顯示區域 --&gt;
       &lt;div
         class="order-book--last-price"
         :class="{
@@ -378,6 +413,7 @@ onBeforeUnmount(() =&gt; {
         }"
       &gt;
         &lt;span&gt;{{ formatNumber(parseFloat(latestTradeStatus.price.toString<span class="branch-0 cbranch-no" title="branch not covered" >() || '0')) }}&lt;/span&gt;</span>
+        &lt;!-- 價格變化箭頭圖示 --&gt;
         &lt;img 
           :src="icon" 
           alt="arrow-down" 
@@ -387,7 +423,7 @@ onBeforeUnmount(() =&gt; {
         /&gt;
       &lt;/div&gt;
 &nbsp;
-      &lt;!-- Bids 買方 --&gt;
+      &lt;!-- 買單區域 --&gt;
       &lt;div class="order-book--bids"&gt;
         &lt;template v-for="bid in displayOrderBook.bids" :key="bid.price"&gt;
           &lt;OrderBookRow
@@ -415,7 +451,7 @@ onBeforeUnmount(() =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-07-11T12:06:33.086Z
+                at 2025-07-11T16:59:11.761Z
             </div>
         <script src="../prettify.js"></script>
         <script>
