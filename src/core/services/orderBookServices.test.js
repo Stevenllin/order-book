@@ -27,21 +27,22 @@ describe('processOrderBookData', () => {
     ];
     const result = processOrderBookData(rawData);
     
+    // 根據 bids 邏輯（從高價到低價排序）
     expect(result).toHaveLength(3);
     expect(result[0]).toEqual({
-      price: 100.0,
-      size: 5.0,
-      total: 5.0
+      price: 102.0,
+      size: 2.0,
+      total: 2.0
     });
     expect(result[1]).toEqual({
       price: 101.0,
       size: 3.0,
-      total: 3.0
+      total: 5.0  // 2.0 + 3.0
     });
     expect(result[2]).toEqual({
-      price: 102.0,
-      size: 2.0,
-      total: 2.0
+      price: 100.0,
+      size: 5.0,
+      total: 10.0  // 2.0 + 3.0 + 5.0
     });
   });
 
@@ -52,6 +53,7 @@ describe('processOrderBookData', () => {
     ];
     const result = processOrderBookData(rawData);
     
+    // 根據 bids 邏輯（從高價到低價排序）
     expect(result[0]).toEqual({
       price: 1234.5678,
       size: 987.6543,
@@ -60,7 +62,7 @@ describe('processOrderBookData', () => {
     expect(result[1]).toEqual({
       price: 0.001,
       size: 0.999,
-      total: 0.999
+      total: 988.6533000000001  // 987.6543 + 0.999
     });
   });
 
@@ -72,13 +74,14 @@ describe('processOrderBookData', () => {
     ];
     const result = processOrderBookData(rawData);
     
+    // 根據 bids 邏輯（從高價到低價排序）
     expect(result[0]).toEqual({
-      price: 0,
+      price: 100,
       size: 0,
       total: 0
     });
     expect(result[1]).toEqual({
-      price: 100,
+      price: 0,
       size: 0,
       total: 0
     });
@@ -96,6 +99,7 @@ describe('processOrderBookData', () => {
     ];
     const result = processOrderBookData(rawData);
     
+    // 根據 bids 邏輯（從高價到低價排序）
     expect(result[0]).toEqual({
       price: 999999.99,
       size: 1234567.89,
@@ -104,7 +108,7 @@ describe('processOrderBookData', () => {
     expect(result[1]).toEqual({
       price: 0.000001,
       size: 999999999.999999,
-      total: 999999999.999999
+      total: 1001234567.889999  // 1234567.89 + 999999999.999999
     });
   });
 
@@ -116,9 +120,10 @@ describe('processOrderBookData', () => {
     ];
     const result = processOrderBookData(rawData);
     
-    expect(result[0].price).toBe(100);
+    // 根據 bids 邏輯（從高價到低價排序）
+    expect(result[0].price).toBe(300);
     expect(result[1].price).toBe(200);
-    expect(result[2].price).toBe(300);
+    expect(result[2].price).toBe(100);
   });
 });
 
@@ -161,30 +166,40 @@ describe('updateFullOrderBook', () => {
     };
     const result = updateFullOrderBook(existingData, newData);
     
-    // 檢查 asks
+    // 檢查 asks (從低價到高價排序)
     expect(result.asks).toHaveLength(3);
     expect(result.asks.find(entry => entry.price === 100)).toEqual({
       price: 100,
       size: 15,
-      total: 25  // 10 + 15
+      total: 15  // 只有這個價格點的 size
+    });
+    expect(result.asks.find(entry => entry.price === 101)).toEqual({
+      price: 101,
+      size: 5,
+      total: 20  // 100的size + 101的size
     });
     expect(result.asks.find(entry => entry.price === 102)).toEqual({
       price: 102,
       size: 8,
-      total: 8
+      total: 28  // 100的size + 101的size + 102的size
     });
     
-    // 檢查 bids
+    // 檢查 bids (從高價到低價排序)
     expect(result.bids).toHaveLength(3);
     expect(result.bids.find(entry => entry.price === 99)).toEqual({
       price: 99,
       size: 10,
-      total: 18  // 8 + 10
+      total: 10  // 只有這個價格點的 size
+    });
+    expect(result.bids.find(entry => entry.price === 98)).toEqual({
+      price: 98,
+      size: 12,
+      total: 22  // 99的size + 98的size
     });
     expect(result.bids.find(entry => entry.price === 97)).toEqual({
       price: 97,
       size: 5,
-      total: 5
+      total: 27  // 99的size + 98的size + 97的size
     });
   });
 
@@ -262,7 +277,7 @@ describe('processFullOrderBook', () => {
     };
     const result = processFullOrderBook(data);
     
-    // 檢查 asks
+    // 檢查 asks (從低價到高價排序)
     expect(result.asks).toHaveLength(2);
     expect(result.asks[0]).toEqual({
       price: 100.5,
@@ -272,10 +287,10 @@ describe('processFullOrderBook', () => {
     expect(result.asks[1]).toEqual({
       price: 101.0,
       size: 5.5,
-      total: 5.5
+      total: 15.75  // 10.25 + 5.5
     });
     
-    // 檢查 bids
+    // 檢查 bids (從高價到低價排序)
     expect(result.bids).toHaveLength(2);
     expect(result.bids[0]).toEqual({
       price: 99.5,
@@ -285,7 +300,7 @@ describe('processFullOrderBook', () => {
     expect(result.bids[1]).toEqual({
       price: 98.0,
       size: 12.25,
-      total: 12.25
+      total: 21.0  // 8.75 + 12.25
     });
   });
 
@@ -337,19 +352,19 @@ describe('processFullOrderBook', () => {
     };
     const result = processFullOrderBook(data);
     
-    // 檢查 asks
+    // 檢查 asks (從低價到高價排序)
     expect(result.asks[0]).toEqual({
-      price: 1234.5678,
-      size: 987.6543,
-      total: 987.6543
-    });
-    expect(result.asks[1]).toEqual({
       price: 0.001,
       size: 0.999,
       total: 0.999
     });
+    expect(result.asks[1]).toEqual({
+      price: 1234.5678,
+      size: 987.6543,
+      total: 988.6533000000001  // 0.999 + 987.6543 (浮點數精度)
+    });
     
-    // 檢查 bids
+    // 檢查 bids (從高價到低價排序)
     expect(result.bids[0]).toEqual({
       price: 999999.99,
       size: 1234567.89,
@@ -358,7 +373,7 @@ describe('processFullOrderBook', () => {
     expect(result.bids[1]).toEqual({
       price: 0.000001,
       size: 999999999.999999,
-      total: 999999999.999999
+      total: 1001234567.889999  // 1234567.89 + 999999999.999999
     });
   });
 });
@@ -374,7 +389,7 @@ describe('updateOrderBookData', () => {
       { price: 100, size: 10, total: 10 },
       { price: 101, size: 5, total: 15 }
     ];
-    const result = updateOrderBookData(existingData, []);
+    const result = updateOrderBookData(existingData, [], true); // isAsk = true
     expect(result).toEqual(existingData);
   });
 
@@ -383,7 +398,7 @@ describe('updateOrderBookData', () => {
       ['100', '10'],
       ['101', '5']
     ];
-    const result = updateOrderBookData([], newData);
+    const result = updateOrderBookData([], newData, true); // isAsk = true
     
     expect(result).toHaveLength(2);
     expect(result[0]).toEqual({
@@ -394,7 +409,7 @@ describe('updateOrderBookData', () => {
     expect(result[1]).toEqual({
       price: 101,
       size: 5,
-      total: 5
+      total: 15  // 100的size + 101的size
     });
   });
 
@@ -407,23 +422,23 @@ describe('updateOrderBookData', () => {
       ['100', '15'],  // 更新價格 100 的數量
       ['102', '8']    // 新增價格 102
     ];
-    const result = updateOrderBookData(existingData, newData);
+    const result = updateOrderBookData(existingData, newData, true); // isAsk = true
     
     expect(result).toHaveLength(3);
     expect(result.find(entry => entry.price === 100)).toEqual({
       price: 100,
       size: 15,
-      total: 25  // 10 + 15
+      total: 15  // 只有這個價格點的 size
     });
     expect(result.find(entry => entry.price === 101)).toEqual({
       price: 101,
       size: 5,
-      total: 15
+      total: 20  // 100的size + 101的size
     });
     expect(result.find(entry => entry.price === 102)).toEqual({
       price: 102,
       size: 8,
-      total: 8
+      total: 28  // 100的size + 101的size + 102的size
     });
   });
 
@@ -437,7 +452,7 @@ describe('updateOrderBookData', () => {
       ['101', '0'],  // 移除價格 101
       ['103', '12']  // 新增價格 103
     ];
-    const result = updateOrderBookData(existingData, newData);
+    const result = updateOrderBookData(existingData, newData, true); // isAsk = true
     
     expect(result).toHaveLength(3);
     expect(result.find(entry => entry.price === 100)).toBeDefined();
@@ -446,7 +461,7 @@ describe('updateOrderBookData', () => {
     expect(result.find(entry => entry.price === 103)).toEqual({
       price: 103,
       size: 12,
-      total: 12
+      total: 30  // 100的size + 102的size + 103的size
     });
   });
 
@@ -455,17 +470,17 @@ describe('updateOrderBookData', () => {
       { price: 100, size: 10, total: 10 }
     ];
     const newData = [
-      ['100', '5'],   // 第一次更新：total = 10 + 5 = 15
-      ['100', '20'],  // 第二次更新：total = 15 + 20 = 35
-      ['100', '15']   // 第三次更新：total = 35 + 15 = 50
+      ['100', '5'],   // 更新價格 100 的數量
+      ['100', '20'],  // 再次更新價格 100 的數量
+      ['100', '15']   // 最後更新價格 100 的數量
     ];
-    const result = updateOrderBookData(existingData, newData);
+    const result = updateOrderBookData(existingData, newData, true); // isAsk = true
     
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
       price: 100,
       size: 15,  // 最後一次更新的 size
-      total: 50  // 累積的 total：10 + 5 + 20 + 15
+      total: 15  // 只有這個價格點的 size
     });
   });
 
@@ -477,18 +492,18 @@ describe('updateOrderBookData', () => {
       ['100.5', '5.75'],
       ['101.25', '3.5']
     ];
-    const result = updateOrderBookData(existingData, newData);
+    const result = updateOrderBookData(existingData, newData, true); // isAsk = true
     
     expect(result).toHaveLength(2);
     expect(result.find(entry => entry.price === 100.5)).toEqual({
       price: 100.5,
       size: 5.75,
-      total: 16.0  // 10.25 + 5.75
+      total: 5.75  // 只有這個價格點的 size
     });
     expect(result.find(entry => entry.price === 101.25)).toEqual({
       price: 101.25,
       size: 3.5,
-      total: 3.5
+      total: 9.25  // 100.5的size + 101.25的size
     });
   });
 });

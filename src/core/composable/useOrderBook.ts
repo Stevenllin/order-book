@@ -27,12 +27,22 @@ export function useOrderBook() {
   })
 
   // Computed
-  const displayOrderBook = computed(() => ({
-    asks: orderBook.asks.slice(0, config.display.maxOrderBookEntries),
-    bids: orderBook.bids.slice(0, config.display.maxOrderBookEntries),
-    asksTotal: orderBook.asks.reduce((acc, curr) => acc + curr.total, 0),
-    bidsTotal: orderBook.bids.reduce((acc, curr) => acc + curr.total, 0)
-  }))
+const displayOrderBook = computed(() => {
+    // 避免重複計算，先取得要顯示的訂單數據
+    const displayAsks = orderBook.asks.slice(0, config.display.maxOrderBookEntries)
+    const displayBids = orderBook.bids.slice(0, config.display.maxOrderBookEntries)
+
+    // 計算總量
+    const asksTotal = displayAsks.reduce((acc, curr) => acc + curr.total, 0)
+    const bidsTotal = displayBids.reduce((acc, curr) => acc + curr.total, 0)
+
+    return {
+      asks: displayAsks,
+      bids: displayBids,
+      asksTotal,
+      bidsTotal
+    }
+  })
 
   // Methods
   const handleOrderBookMessage = (data: OrderParsed) => {
@@ -57,7 +67,7 @@ export function useOrderBook() {
       // Initial data processing
       const processedData = processFullOrderBook({ asks, bids })
       orderBook.bids = processedData.bids.sort((a, b) => b.price - a.price)
-      orderBook.asks = processedData.asks.sort((a, b) => a.price - b.price)
+      orderBook.asks = processedData.asks.sort((a, b) => b.price - a.price)
       isLoading.value = false
 
     } else {
@@ -67,7 +77,7 @@ export function useOrderBook() {
       
       const updatedData = updateFullOrderBook(orderBook, { asks, bids })
       orderBook.bids = updatedData.bids.sort((a, b) => b.price - a.price)
-      orderBook.asks = updatedData.asks.sort((a, b) => a.price - b.price)
+      orderBook.asks = updatedData.asks.sort((a, b) => b.price - a.price)
     }
   }
 

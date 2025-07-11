@@ -22,7 +22,7 @@ const props = defineProps<{
 const previousOrderData = computed(() => {
   const previousEntry = props.previousOrderBook.find(el => el.price === props.quote.price)
   return {
-    isInList: !!previousEntry,
+    isNewEntry: !previousEntry, // 如果前一次沒有這個價格，就是新加入的
     sizeChangeStatus: previousEntry ? 
       (previousEntry.size > props.quote.size ? StatusChangeEnum.Down : 
        previousEntry.size < props.quote.size ? StatusChangeEnum.Up : StatusChangeEnum.Same) : 
@@ -36,7 +36,7 @@ const previousOrderData = computed(() => {
     class="order-book-row"
     :class="{ 'order-book-row--buy': side === OrderSide.BUY, 'order-book-row--sell': side === OrderSide.SELL }"
     :style="{
-      background: previousOrderData.isInList && side === OrderSide.BUY ? 'rgba(0, 177, 93, 0.5)' : previousOrderData.isInList && side === OrderSide.SELL ? 'rgba(255, 91, 90, 0.5)' : ''
+      background: previousOrderData.isNewEntry && side === OrderSide.BUY ? 'rgba(0, 177, 93, 0.5)' : previousOrderData.isNewEntry && side === OrderSide.SELL ? 'rgba(255, 91, 90, 0.5)' : ''
     }"
   >
     <div class="order-book-row--price">

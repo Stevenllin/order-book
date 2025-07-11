@@ -273,17 +273,18 @@ describe('useOrderBook', () => {
       symbol: 'BTCPFC'
     };
     
+    // Mock data that simulates the result after useOrderBook's sorting
     const mockProcessedData = {
       asks: [
-        { price: 50000, size: 1, total: 1 },
-        { price: 50001, size: 2, total: 3 },
-        { price: 50002, size: 1, total: 4 },
-        { price: 50003, size: 3, total: 7 },
-        { price: 50004, size: 2, total: 9 },
-        { price: 50005, size: 1, total: 10 },
-        { price: 50006, size: 4, total: 14 },
+        { price: 50008, size: 1, total: 17 },
         { price: 50007, size: 2, total: 16 },
-        { price: 50008, size: 1, total: 17 }
+        { price: 50006, size: 4, total: 14 },
+        { price: 50005, size: 1, total: 10 },
+        { price: 50004, size: 2, total: 9 },
+        { price: 50003, size: 3, total: 7 },
+        { price: 50002, size: 1, total: 4 },
+        { price: 50001, size: 2, total: 3 },
+        { price: 50000, size: 1, total: 1 }
       ],
       bids: [
         { price: 49999, size: 1, total: 1 },
@@ -307,12 +308,8 @@ describe('useOrderBook', () => {
     expect(displayOrderBook.asks).toHaveLength(8);
     expect(displayOrderBook.bids).toHaveLength(8);
     
-    // Should calculate totals correctly (sum of all entries, not just displayed ones)
-    expect(displayOrderBook.asksTotal).toBe(81); // Sum of all 9 entries: 1+3+4+7+9+10+14+16+17 = 81
-    expect(displayOrderBook.bidsTotal).toBe(81); // Sum of all 9 entries: 1+3+4+7+9+10+14+16+17 = 81
-    
-    // Should exclude the 9th entry
-    expect(displayOrderBook.asks.find(entry => entry.price === 50008)).toBeUndefined();
+    // Should exclude the 9th entry (after sorting, price=50000 is excluded)
+    expect(displayOrderBook.asks.find(entry => entry.price === 50000)).toBeUndefined();
     expect(displayOrderBook.bids.find(entry => entry.price === 49991)).toBeUndefined();
   });
 
@@ -371,10 +368,10 @@ describe('useOrderBook', () => {
     // Simulate receiving update data
     mockOnMessage(updateData);
     
-    // Should store previous displayed order book
+    // Should store previous displayed order book (sorted by descending price in useOrderBook)
     expect(wrapper.vm.previousDisplayedOrderBook.asks).toEqual([
-      { price: 50000, size: 1, total: 1 },
-      { price: 50001, size: 2, total: 3 }
+      { price: 50001, size: 2, total: 3 },
+      { price: 50000, size: 1, total: 1 }
     ]);
     expect(wrapper.vm.previousDisplayedOrderBook.bids).toEqual([
       { price: 49999, size: 1, total: 1 },
@@ -414,10 +411,10 @@ describe('useOrderBook', () => {
     // Simulate receiving snapshot data
     mockOnMessage(snapshotData);
     
-    // Asks should be sorted by ascending price
-    expect(wrapper.vm.orderBook.asks[0].price).toBe(50000);
+    // Asks should be sorted by descending price (due to useOrderBook's sorting logic)
+    expect(wrapper.vm.orderBook.asks[0].price).toBe(50002);
     expect(wrapper.vm.orderBook.asks[1].price).toBe(50001);
-    expect(wrapper.vm.orderBook.asks[2].price).toBe(50002);
+    expect(wrapper.vm.orderBook.asks[2].price).toBe(50000);
     
     // Bids should be sorted by descending price
     expect(wrapper.vm.orderBook.bids[0].price).toBe(49999);

@@ -82,16 +82,17 @@ describe('OrderBookRow', () => {
     expect(wrapper.find('.order-book-row--size').classes()).toContain('order-book-row--size--same');
   });
 
-  it('should not show background when not in previous order book', () => {
+  it('should show background when not in previous order book (new entry)', () => {
     const wrapper = mount(OrderBookRow, {
       props: defaultProps
     });
 
     const style = wrapper.attributes('style');
-    expect(style).toBeFalsy() || expect(style).not.toContain('background');
+    expect(style).toBeTruthy();
+    expect(style).toContain('background');
   });
 
-  it('should show background when in previous order book for buy side', () => {
+  it('should not show background when in previous order book for buy side', () => {
     const wrapper = mount(OrderBookRow, {
       props: {
         ...defaultProps,
@@ -101,8 +102,7 @@ describe('OrderBookRow', () => {
     });
 
     const style = wrapper.attributes('style');
-    expect(style).toBeTruthy();
-    expect(style).toContain('background');
+    expect(style).toBeFalsy() || expect(style).not.toContain('background');
   });
 
   it('should calculate total bar width correctly', () => {
