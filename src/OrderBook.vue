@@ -119,9 +119,12 @@ const { } = useBTSESocket({
 
 /** 顯示訂單簿 */
 const displayOrderBook = computed(() => {
+
   return {
     asks: orderBook.asks.slice(0, 8),
-    bids: orderBook.bids.slice(0, 8)
+    bids: orderBook.bids.slice(0, 8),
+    asksTotal: orderBook.asks.reduce((acc, curr) => acc + curr.total, 0),
+    bidsTotal: orderBook.bids.reduce((acc, curr) => acc + curr.total, 0)
   }
 })
 
@@ -162,7 +165,13 @@ const latestTradeStatus = computed(() => {
     <!-- Asks 賣方 -->
     <div class="order-book--asks">
       <template v-for="ask in displayOrderBook.asks" :key="ask.price">
-        <OrderBookRow :quote="ask" :side="OrderSide.SELL" :previousOrderBook="previousDisplayedOrderBook.asks"/>
+        <OrderBookRow
+          :quote="ask"
+          :side="OrderSide.SELL"
+          :previousOrderBook="previousDisplayedOrderBook.asks"
+          :latestTradeStatus="latestTradeStatus"
+          :total="displayOrderBook.asksTotal"
+        />
       </template>
     </div>
 
@@ -187,7 +196,13 @@ const latestTradeStatus = computed(() => {
     <!-- Bids 買方 -->
     <div class="order-book--bids">
       <template v-for="bid in displayOrderBook.bids" :key="bid.price">
-        <OrderBookRow :quote="bid" :side="OrderSide.BUY" :previousOrderBook="previousDisplayedOrderBook.bids"/>
+        <OrderBookRow
+          :quote="bid"
+          :side="OrderSide.BUY"
+          :previousOrderBook="previousDisplayedOrderBook.bids"
+          :latestTradeStatus="latestTradeStatus"
+          :total="displayOrderBook.bidsTotal"
+        />
       </template>
     </div>
   </div>

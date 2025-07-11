@@ -14,6 +14,7 @@ const props = defineProps<{
   quote: Quote
   side: OrderSide
   previousOrderBook: OrderBookEntry[]
+  total: number
 }>()
 
 /** 判斷是否為新增進來的 */
@@ -54,7 +55,21 @@ const sizeChangeStatus = computed(() => {
       {{ formatNumber(quote.size) }}
     </div>
     <div class="order-book-row--total">
-      {{ formatNumber(quote.total) }}
+      <div
+        class="order-book-row--total-bar"
+        :style="{
+          width: `${quote.total / total * 100}%`,
+          background: side === OrderSide.BUY ? 'rgba(16, 186, 104, 0.12)' : 'rgba(255, 90, 90, 0.12)',
+          position: 'absolute',
+          height: '100%',
+          right: 0,
+          top: 0,
+          zIndex: 1
+        }"
+      ></div>
+      <div style="position: relative; z-index: 2">
+        {{ formatNumber(quote.total) }}
+      </div>
     </div>
   </div>
 </template>
