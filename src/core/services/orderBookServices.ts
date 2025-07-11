@@ -116,14 +116,3 @@ export function processFullOrderBook(data: {
     bids: processOrderBookData(data.bids)
   };
 }
-
-/**
- * 計算價格變化百分比
- * @param currentPrice 當前價格
- * @param previousPrice 之前價格
- * @returns 變化百分比
- */
-export function calculatePriceChange(currentPrice: number, previousPrice: number): number {
-  if (previousPrice === 0) return 0;
-  return ((currentPrice - previousPrice) / previousPrice) * 100;
-}

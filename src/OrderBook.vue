@@ -12,7 +12,7 @@ import OrderBookRow from './components/UI/OrderBookRow.vue'
 import Loading from './components/UI/Loading.vue'
 import icon from './assets/svg/IconArrowDown.svg'
 import { formatNumber } from './core/services/commonServices'
-import { PriceChangeStatus } from './core/enums/price/PriceChangeStatus'
+import { StatusChangeEnum } from './core/enums/system/StatusChangeEnum'
 import type { OrderBookEntry } from './core/services/orderBookServices'
 import { SizeNameEnum } from './core/enums/system/SizeNameEnum'
 
@@ -140,7 +140,7 @@ const displayOrderBook = computed(() => {
 const latestTradeStatus = computed(() => {
   if (!previousTrade.value || !currentTrade.value) {
     return {
-      status: PriceChangeStatus.Same,
+      status: StatusChangeEnum.Same,
       price: currentTrade.value?.price || 0,
       side: currentTrade.value?.side
     }
@@ -150,9 +150,9 @@ const latestTradeStatus = computed(() => {
   const { price: previousPrice } = previousTrade.value
 
   return {
-    status: currentPrice > previousPrice ? PriceChangeStatus.Up :
-           currentPrice < previousPrice ? PriceChangeStatus.Down :
-           PriceChangeStatus.Same,
+    status: currentPrice > previousPrice ? StatusChangeEnum.Up :
+           currentPrice < previousPrice ? StatusChangeEnum.Down :
+           StatusChangeEnum.Same,
     price: currentPrice,
     side
   }
@@ -206,7 +206,7 @@ const latestTradeStatus = computed(() => {
           :src="icon" 
           alt="arrow-down" 
           :class="{
-            'icon--up': latestTradeStatus.status === PriceChangeStatus.Up || latestTradeStatus.status === PriceChangeStatus.Same,
+            'icon--up': latestTradeStatus.status === StatusChangeEnum.Up || latestTradeStatus.status === StatusChangeEnum.Same,
           }"
         />
       </div>
