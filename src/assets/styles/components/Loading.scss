@@ -1,0 +1,68 @@
+.order-book--loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.loading-container {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.spinner {
+  position: relative;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent, #1E3059, transparent);
+  animation: spin 1.5s linear infinite;
+}
+
+.spinner-inner {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  background: #131B29;
+  border-radius: 50%;
+}
+
+.size-small .spinner {
+  width: 24px;
+  height: 24px;
+}
+
+.size-medium .spinner {
+  width: 40px;
+  height: 40px;
+}
+
+.size-large .spinner {
+  width: 60px;
+  height: 60px;
+}
+
+.loading-text {
+  margin-top: 16px;
+  color: #1E3059;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

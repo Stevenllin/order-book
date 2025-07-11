@@ -1,6 +1,7 @@
 @use './themes/color.scss' as *;
 @use './abstracts/mixins.scss' as *;
 @use './components/OrderBookRow.scss' as *;
+@use './components/Loading.scss' as *;
 
 body {
   background-color: $bg-primary;

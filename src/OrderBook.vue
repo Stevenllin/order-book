@@ -9,10 +9,12 @@ import {
 } from './core/services/orderBookServices'
 import { OrderBookUpdateType } from './core/enums/order/OrderBookUpdateType'
 import OrderBookRow from './components/UI/OrderBookRow.vue'
+import Loading from './components/UI/Loading.vue'
 import icon from './assets/svg/IconArrowDown.svg'
 import { formatNumber } from './core/services/commonServices'
 import { PriceChangeStatus } from './core/enums/price/PriceChangeStatus'
 import type { OrderBookEntry } from './core/services/orderBookServices'
+import { SizeNameEnum } from './core/enums/system/SizeNameEnum'
 
 type TradeData = {
   price: number
@@ -34,6 +36,10 @@ interface OrderParsed {
   timestamp: number
   symbol: string
 }
+const isLoading = reactive({
+  orderBook: true,
+  tradeHistory: true
+})
 /** 當前最新價格 */
 const currentTrade = ref<TradeData | null>(null)
 /** 上一筆最新價格 */
@@ -85,6 +91,7 @@ const { connect: connectOrderBook, disconnect: disconnectOrderBook } = useBTSESo
       orderBook.bids = processedData.bids.sort((a, b) => b.price - a.price);
       /** 賣方 升序排序 */
       orderBook.asks = processedData.asks.sort((a, b) => a.price - b.price);
+      isLoading.orderBook = false
     } else {
       // 在更新前，先記錄當前的訂單簿數據作為 previous
       previousDisplayedOrderBook.asks = [...orderBook.asks.slice(0, 8)]
@@ -114,6 +121,7 @@ const { } = useBTSESocket({
       previousTrade.value = currentTrade.value
       currentTrade.value = data[0]
     }
+    isLoading.tradeHistory = false
   }
 })
 
@@ -154,57 +162,68 @@ const latestTradeStatus = computed(() => {
 
 <template>
   <div class="order-book">
-    <!-- Title -->
-    <h1>Order Book</h1>
-    <!-- Header -->
-    <div class="order-book--header">
-      <div>Price (USD)</div>
-      <div>Size</div>
-      <div>Total</div>
-    </div>
-    <!-- Asks 賣方 -->
-    <div class="order-book--asks">
-      <template v-for="ask in displayOrderBook.asks" :key="ask.price">
-        <OrderBookRow
-          :quote="ask"
-          :side="OrderSide.SELL"
-          :previousOrderBook="previousDisplayedOrderBook.asks"
-          :latestTradeStatus="latestTradeStatus"
-          :total="displayOrderBook.asksTotal"
-        />
-      </template>
-    </div>
-
-    <!-- Current Trade -->
-    <div
-      class="order-book--last-price"
-      :class="{
-        'order-book--last-price--buy': latestTradeStatus.side === OrderSide.BUY,
-        'order-book--last-price--sell': latestTradeStatus.side === OrderSide.SELL
-      }"
-    >
-      <span>{{ formatNumber(parseFloat(latestTradeStatus.price.toString() || '0')) }}</span>
-      <img 
-        :src="icon" 
-        alt="arrow-down" 
-        :class="{
-          'icon--up': latestTradeStatus.status === PriceChangeStatus.Up || latestTradeStatus.status === PriceChangeStatus.Same,
-        }"
+    <!-- Loading State -->
+    <div v-if="isLoading.orderBook || isLoading.tradeHistory" class="">
+      <Loading 
+        :text="isLoading.orderBook ? 'Loading Order Book...' : 'Loading Trade History...'"
+        :size="SizeNameEnum.LARGE"
       />
     </div>
+    
+    <!-- Actual Content -->
+    <template v-else>
+      <!-- Title -->
+      <h1>Order Book</h1>
+      <!-- Header -->
+      <div class="order-book--header">
+        <div>Price (USD)</div>
+        <div>Size</div>
+        <div>Total</div>
+      </div>
+      <!-- Asks 賣方 -->
+      <div class="order-book--asks">
+        <template v-for="ask in displayOrderBook.asks" :key="ask.price">
+          <OrderBookRow
+            :quote="ask"
+            :side="OrderSide.SELL"
+            :previousOrderBook="previousDisplayedOrderBook.asks"
+            :latestTradeStatus="latestTradeStatus"
+            :total="displayOrderBook.asksTotal"
+          />
+        </template>
+      </div>
 
-    <!-- Bids 買方 -->
-    <div class="order-book--bids">
-      <template v-for="bid in displayOrderBook.bids" :key="bid.price">
-        <OrderBookRow
-          :quote="bid"
-          :side="OrderSide.BUY"
-          :previousOrderBook="previousDisplayedOrderBook.bids"
-          :latestTradeStatus="latestTradeStatus"
-          :total="displayOrderBook.bidsTotal"
+      <!-- Current Trade -->
+      <div
+        class="order-book--last-price"
+        :class="{
+          'order-book--last-price--buy': latestTradeStatus.side === OrderSide.BUY,
+          'order-book--last-price--sell': latestTradeStatus.side === OrderSide.SELL
+        }"
+      >
+        <span>{{ formatNumber(parseFloat(latestTradeStatus.price.toString() || '0')) }}</span>
+        <img 
+          :src="icon" 
+          alt="arrow-down" 
+          :class="{
+            'icon--up': latestTradeStatus.status === PriceChangeStatus.Up || latestTradeStatus.status === PriceChangeStatus.Same,
+          }"
         />
-      </template>
-    </div>
+      </div>
+
+      <!-- Bids 買方 -->
+      <div class="order-book--bids">
+        <template v-for="bid in displayOrderBook.bids" :key="bid.price">
+          <OrderBookRow
+            :quote="bid"
+            :side="OrderSide.BUY"
+            :previousOrderBook="previousDisplayedOrderBook.bids"
+            :latestTradeStatus="latestTradeStatus"
+            :total="displayOrderBook.bidsTotal"
+          />
+        </template>
+      </div>
+    </template>
   </div>
 </template>
 
