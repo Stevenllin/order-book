@@ -2,8 +2,17 @@
 @use '../themes/color.scss' as *;
 
 .order-book-row {
-  @include flex-layout();
   padding: 8px;
+  margin: 4px 0;
+  @include flex-layout();
+
+  &:hover {
+    background: $quote-hover-bg;
+  }
+
+  &--price {
+    width: 100%;
+  }
 
   &--buy {
     .order-book-row--price {
@@ -23,5 +32,23 @@
     img {
       filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
     }
+  }
+
+  &--size {
+    width: 100%;
+    max-width: 200px;
+    text-align: right;
+    &--up {
+      background: $quote-buy;
+    }
+
+    &--down {
+      background: $quote-sell;
+    }
+  }
+
+  &--total {
+    width: 100%;
+    text-align: right;
   }
 }

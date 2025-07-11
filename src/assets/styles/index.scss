@@ -20,14 +20,29 @@ body {
     @include flex-layout();
     padding: 8px;
     color: $text-secondary;
+    border-top: 1px solid $text-secondary;
   }
 
   &--last-price {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 8px;
     font-size: 1.5rem;
     font-weight: 700;
+    padding: 8px;
+
+    &--buy {
+      color: $quote-buy;
+      background-color: $quote-buy-bar;
+
+      filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(119%);
+    }
+    
+    &--sell {
+      color: $quote-sell;
+      background-color: $quote-sell-bar;
+      filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+    }
   }
 }

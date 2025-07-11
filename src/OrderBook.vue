@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, watch, ref, computed } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import { useBTSESocket } from './core/composable/useBTSESocket'
 import { OrderSide } from './core/enums/order/OrderSide'
 import { 
@@ -12,6 +12,7 @@ import OrderBookRow from './components/UI/OrderBookRow.vue'
 import icon from './assets/svg/IconArrowDown.svg'
 import { formatNumber } from './core/services/commonServices'
 import { PriceChangeStatus } from './core/enums/price/PriceChangeStatus'
+import type { OrderBookEntry } from './core/services/orderBookServices'
 
 type TradeData = {
   price: number
@@ -44,13 +45,21 @@ const orderBook = reactive<OrderBookData>({
 })
 /** 上一筆訂單簿數據 */
 const previousOrder = ref<OrderParsed | null>(null)
+/** 為了紀錄是否新增進來的 */
+const previousDisplayedOrderBook = reactive<{
+  asks: OrderBookEntry[]
+  bids: OrderBookEntry[]
+}>({
+  asks: [],
+  bids: []
+})
 
 /**
  * Order Book Update
  */
 const { connect: connectOrderBook, disconnect: disconnectOrderBook } = useBTSESocket({
   url: 'wss://ws.btse.com/ws/oss/futures',
-  topic: 'update:BTCPFC_0',
+  topic: 'update:BTCPFC',
   onMessage: (data) => {
     const { asks, bids, type } = data;
     /** 檢查是否為訂單簿更新 */
@@ -76,16 +85,17 @@ const { connect: connectOrderBook, disconnect: disconnectOrderBook } = useBTSESo
       orderBook.bids = processedData.bids.sort((a, b) => b.price - a.price);
       /** 賣方 升序排序 */
       orderBook.asks = processedData.asks.sort((a, b) => a.price - b.price);
-      // console.log('📈 初始訂單簿數據:', orderBook);
     } else {
+      // 在更新前，先記錄當前的訂單簿數據作為 previous
+      previousDisplayedOrderBook.asks = [...orderBook.asks.slice(0, 8)]
+      previousDisplayedOrderBook.bids = [...orderBook.bids.slice(0, 8)]
+      
       // 增量更新
       const updatedData = updateFullOrderBook(orderBook, { asks, bids });
       /** 買方 降序排序 */
-      orderBook.bids = updatedData.asks.sort((a, b) => b.price - a.price);
+      orderBook.bids = updatedData.bids.sort((a, b) => b.price - a.price);
       /** 賣方 升序排序 */
-      orderBook.asks = updatedData.bids.sort((a, b) => a.price - b.price);
-
-      // console.log('📈 訂單簿增量更新:', orderBook);
+      orderBook.asks = updatedData.asks.sort((a, b) => a.price - b.price);
     }
   }
 })
@@ -93,7 +103,7 @@ const { connect: connectOrderBook, disconnect: disconnectOrderBook } = useBTSESo
 /**
  * Trade History
  */
-const { connect: connectTradeHistory, disconnect: disconnectTradeHistory } = useBTSESocket({
+const { } = useBTSESocket({
   url: 'wss://ws.btse.com/ws/futures',
   topic: 'tradeHistoryApi:BTCPFC',
   onMessage: (data) => {
@@ -104,8 +114,6 @@ const { connect: connectTradeHistory, disconnect: disconnectTradeHistory } = use
       previousTrade.value = currentTrade.value
       currentTrade.value = data[0]
     }
-    console.log('📈 Trade History:', data)
-    // tradeHistory.push(...data)
   }
 })
 
@@ -154,19 +162,24 @@ const latestTradeStatus = computed(() => {
     <!-- Asks 賣方 -->
     <div class="order-book--asks">
       <template v-for="ask in displayOrderBook.asks" :key="ask.price">
-        <OrderBookRow :quote="ask" :side="OrderSide.SELL" />
+        <OrderBookRow :quote="ask" :side="OrderSide.SELL" :previousOrderBook="previousDisplayedOrderBook.asks"/>
       </template>
     </div>
 
     <!-- Current Trade -->
-    <div class="order-book--last-price">
+    <div
+      class="order-book--last-price"
+      :class="{
+        'order-book--last-price--buy': latestTradeStatus.side === OrderSide.BUY,
+        'order-book--last-price--sell': latestTradeStatus.side === OrderSide.SELL
+      }"
+    >
       <span>{{ formatNumber(parseFloat(latestTradeStatus.price.toString() || '0')) }}</span>
       <img 
         :src="icon" 
         alt="arrow-down" 
         :class="{
           'icon--up': latestTradeStatus.status === PriceChangeStatus.Up || latestTradeStatus.status === PriceChangeStatus.Same,
-          'icon--down': latestTradeStatus.status === PriceChangeStatus.Down || latestTradeStatus.status === PriceChangeStatus.Same
         }"
       />
     </div>
@@ -174,20 +187,14 @@ const latestTradeStatus = computed(() => {
     <!-- Bids 買方 -->
     <div class="order-book--bids">
       <template v-for="bid in displayOrderBook.bids" :key="bid.price">
-        <OrderBookRow :quote="bid" :side="OrderSide.BUY" />
+        <OrderBookRow :quote="bid" :side="OrderSide.BUY" :previousOrderBook="previousDisplayedOrderBook.bids"/>
       </template>
     </div>
-
   </div>
 </template>
 
 <style scoped>
 .icon--up {
-  filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(119%);
   transform: rotate(180deg);
-}
-
-.icon--down {
-  filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
 }
 </style>
