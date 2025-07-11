@@ -10,31 +10,42 @@ import { SizeNameEnum } from './core/enums/system/SizeNameEnum'
 import { useOrderBook } from './core/composable/useOrderBook'
 import { useTradeHistory } from './core/composable/useTradeHistory'
 
-// Use the composables
+/** 使用訂單簿相關功能的composable */
 const {
+  /** 訂單簿數據加載狀態 */
   isLoading: orderBookLoading,
+  /** 當前展示的訂單簿數據 */
   displayOrderBook,
+  /** 前一次展示的訂單簿數據,用於計算變化狀態 */
   previousDisplayedOrderBook,
+  /** 連接訂單簿WebSocket的方法 */
   connectOrderBook,
+  /** 斷開訂單簿WebSocket連接的方法 */
   disconnectOrderBook
 } = useOrderBook()
 
+/** 使用交易歷史相關功能的composable */
 const {
+  /** 交易歷史數據加載狀態 */
   isLoading: tradeLoading,
+  /** 最新成交狀態 */
   latestTradeStatus,
+  /** 連接交易歷史WebSocket的方法 */
   connectTradeHistory,
+  /** 斷開交易歷史WebSocket連接的方法 */
   disconnectTradeHistory
 } = useTradeHistory()
 
-// Combined loading state
+/** 組合加載狀態 - 當訂單簿或交易歷史任一在加載時為true */
 const isLoading = computed(() => orderBookLoading.value || tradeLoading.value)
 
-// Connect to WebSockets when component is mounted
+/** 組件掛載時連接WebSocket */
 onMounted(() => {
   connectOrderBook()
   connectTradeHistory()
 })
 
+/** 組件卸載前斷開WebSocket連接 */
 onBeforeUnmount(() => {
   disconnectOrderBook()
   disconnectTradeHistory()
@@ -43,7 +54,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="order-book">
-    <!-- Loading State -->
+    <!-- 載入狀態顯示 -->
     <div v-if="isLoading" class="">
       <Loading 
         :text="orderBookLoading ? 'Loading Order Book...' : 'Loading Trade History...'"
@@ -51,17 +62,17 @@ onBeforeUnmount(() => {
       />
     </div>
     
-    <!-- Actual Content -->
+    <!-- 主要內容區域 -->
     <template v-else>
-      <!-- Title -->
+      <!-- 標題 -->
       <h1>Order Book</h1>
-      <!-- Header -->
+      <!-- 表頭 -->
       <div class="order-book--header">
         <div>Price (USD)</div>
         <div>Size</div>
         <div>Total</div>
       </div>
-      <!-- Asks 賣方 -->
+      <!-- 賣單區域 -->
       <div class="order-book--asks">
         <template v-for="ask in displayOrderBook.asks" :key="ask.price">
           <OrderBookRow
@@ -74,7 +85,7 @@ onBeforeUnmount(() => {
         </template>
       </div>
 
-      <!-- Current Trade -->
+      <!-- 最新成交價格顯示區域 -->
       <div
         class="order-book--last-price"
         :class="{
@@ -83,6 +94,7 @@ onBeforeUnmount(() => {
         }"
       >
         <span>{{ formatNumber(parseFloat(latestTradeStatus.price.toString() || '0')) }}</span>
+        <!-- 價格變化箭頭圖示 -->
         <img 
           :src="icon" 
           alt="arrow-down" 
@@ -92,7 +104,7 @@ onBeforeUnmount(() => {
         />
       </div>
 
-      <!-- Bids 買方 -->
+      <!-- 買單區域 -->
       <div class="order-book--bids">
         <template v-for="bid in displayOrderBook.bids" :key="bid.price">
           <OrderBookRow
